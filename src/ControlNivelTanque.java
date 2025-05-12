@@ -138,36 +138,55 @@ public class ControlNivelTanque extends JPanel {
         g2.setColor(Color.DARK_GRAY);
         g2.fillRect(tuberiaSalidaX, tuberiaSalidaY, 10, 20);
         g2.fillRect(tuberiaSalidaX, tuberiaSalidaY + 20, 100, 10);
-        g2.fillRect(tanqueX + tanqueW / 2 + 95, tanqueY + tanqueH + 40, 10, 20);
+        g2.fillRect(tuberiaSalidaX + 100, tuberiaSalidaY + 20, 10, 20);
         if (consumoActivo && nivel > 0.05) {
             g2.setColor(Color.BLUE);
             g2.fillOval(tanqueX + tanqueW / 2 + 97, tanqueY + tanqueH + 60, 6, 6);
         }
 
-        // LT - LC - SP
-        g2.setColor(new Color(135, 206, 250));
-        g2.fillOval(tanqueX + tanqueW + 40, tanqueY + 180, 40, 40);
-        g2.setColor(Color.BLACK);
-        g2.drawString("LT", tanqueX + tanqueW + 53, tanqueY + 205);
+        // -------- LINEAS DE NIVEL ---------
 
+        // LINEAS DE NIVEL - DERECHA
+
+        int lineaNivelY = tanqueY + tanqueH - 280;
+        int lineaNivelX = tanqueX + tanqueW + 10;
+        int widthHorizontalLevelLine = 50;
+
+        // Salida tubería
+        g2.setColor(Color.DARK_GRAY);
+        g2.fillRect(lineaNivelX, lineaNivelY, widthHorizontalLevelLine, 2); // Linea Horizontal Cima
+        g2.fillRect(lineaNivelX + 50, lineaNivelY, 2, 282); // Linea Vertical
+        g2.fillRect(lineaNivelX, lineaNivelY + 280, widthHorizontalLevelLine, 2); // Linea Horizontal Suelo
+
+        // LT BOX
+        g2.setColor(new Color(135, 206, 250));
+        g2.fillOval(tanqueX + tanqueW + 40, tanqueY + 140, 40, 40);
+        g2.setColor(Color.BLACK);
+        g2.drawString("LT", tanqueX + tanqueW + 53, tanqueY + 165);
+
+        // LC BOX
         g2.setColor(new Color(144, 238, 144));
         g2.fillOval(tanqueX + tanqueW + 100, tanqueY + 180, 40, 40);
         g2.setColor(Color.BLACK);
         g2.drawString("LC", tanqueX + tanqueW + 113, tanqueY + 205);
 
-        // SP Box
+        // SP BOX
         g2.setColor(new Color(173, 216, 230));
         g2.fillRect(tanqueX + tanqueW + 160, tanqueY + 180, 90, 30);
         g2.setColor(Color.BLACK);
         g2.drawString("SP = " + String.format("%.2f", setPoint) + " m", tanqueX + tanqueW + 165, tanqueY + 200);
 
-        // Nivel numérico
+        // ----------- NIVEL NUMERICO - BOX ----------
+
+        int numLevelBoxY = tanqueY + 80;
+        int numLevelBoxX = tanqueX + tanqueW + 80;
+
         g2.setColor(Color.BLACK);
-        g2.drawString("NIVEL NUMÉRICO", tanqueX + tanqueW + 30, tanqueY + 100);
+        g2.drawString("NIVEL NUMÉRICO", numLevelBoxX, numLevelBoxY - 10);
         g2.setColor(new Color(135, 206, 250));
-        g2.fillRect(tanqueX + tanqueW + 30, tanqueY + 110, 70, 30);
+        g2.fillRect(numLevelBoxX, numLevelBoxY, 70, 30);
         g2.setColor(Color.BLACK);
-        g2.drawString(String.format("%.2f m", nivel), tanqueX + tanqueW + 45, tanqueY + 130);
+        g2.drawString(String.format("%.2f m", nivel), numLevelBoxX + 15, numLevelBoxY + 20);
 
         // Línea punteada control
         Stroke old = g2.getStroke();
