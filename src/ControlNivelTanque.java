@@ -1,0 +1,193 @@
+
+import javax.swing.*;
+        import java.awt.*;
+        import java.awt.event.*;
+        import java.awt.geom.*;
+
+public class ControlNivelTanque extends JPanel {
+    private double nivel = 0.0;
+    private double setPoint = 0.7;
+    private boolean valvulaAbierta = true;
+    private boolean simulando = false;
+    private boolean consumoActivo = false;
+    private double tiempo = 0;
+    private Timer timer;
+    private JTextField setPointField;
+
+    public ControlNivelTanque(JTextField field) {
+        this.setPointField = field;
+        timer = new Timer(100, e -> actualizar());
+    }
+
+    private void actualizar() {
+        tiempo += 0.1;
+        if (!simulando) return;
+
+        valvulaAbierta = nivel < setPoint;
+
+        if (valvulaAbierta) {
+            nivel += 0.01;
+            if (nivel > 1.0) nivel = 1.0;
+        }
+
+        if (nivel >= setPoint) consumoActivo = true;
+
+        if (consumoActivo) {
+            double consumo = 0.004 + 0.003 * Math.sin(tiempo);
+            nivel -= consumo;
+            if (nivel < 0) nivel = 0;
+        }
+
+        repaint();
+    }
+
+    public void iniciar() {
+        try {
+            double sp = Double.parseDouble(setPointField.getText());
+            if (sp < 0 || sp > 1.0) throw new NumberFormatException();
+            this.setPoint = sp;
+            simulando = true;
+            consumoActivo = false;
+            timer.start();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "SetPoint inválido (0-1)", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void pausar() { simulando = false; }
+
+    public void reiniciar() {
+        simulando = false;
+        consumoActivo = false;
+        nivel = 0.0;
+        tiempo = 0;
+        repaint();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        setBackground(new Color(250, 250, 250));
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+/*
+        for (int x = 0; x < getWidth(); x += 20)
+            for (int y = 0; y < getHeight(); y += 20)
+                g2.setColor(new Color(220, 220, 220)).fillRect(x, y, 1, 1);
+* */
+
+        int tanqueX = 300, tanqueY = 100, tanqueW = 100, tanqueH = 300;
+
+        // Válvula Abierta
+        g2.setColor(Color.WHITE);
+        g2.fillRoundRect(tanqueX - 160, tanqueY - 90, 60, 40, 10, 10);
+        g2.setColor(new Color(0, 200, 0));
+        Polygon abierta = new Polygon();
+        abierta.addPoint(tanqueX - 145, tanqueY - 65);
+        abierta.addPoint(tanqueX - 155, tanqueY - 50);
+        abierta.addPoint(tanqueX - 135, tanqueY - 50);
+        g2.fill(abierta);
+        g2.fillArc(tanqueX - 152, tanqueY - 80, 15, 15, 0, 180);
+        g2.setColor(new Color(198, 255, 198));
+        g2.fillRoundRect(tanqueX - 160, tanqueY - 50, 90, 20, 10, 10);
+        g2.setColor(Color.BLACK);
+        g2.setFont(new Font("Arial", Font.PLAIN, 12));
+        g2.drawString("Válvula Abierta", tanqueX - 155, tanqueY - 35);
+
+        // Válvula Cerrada
+        g2.setColor(Color.WHITE);
+        g2.fillRoundRect(tanqueX - 160, tanqueY - 10, 60, 40, 10, 10);
+        g2.setColor(new Color(200, 0, 0));
+        Polygon cerrada = new Polygon();
+        cerrada.addPoint(tanqueX - 145, tanqueY + 15);
+        cerrada.addPoint(tanqueX - 155, tanqueY + 30);
+        cerrada.addPoint(tanqueX - 135, tanqueY + 30);
+        g2.fill(cerrada);
+        g2.fillArc(tanqueX - 152, tanqueY - 5, 15, 15, 0, 180);
+        g2.setColor(new Color(255, 200, 200));
+        g2.fillRoundRect(tanqueX - 160, tanqueY + 30, 90, 20, 10, 10);
+        g2.setColor(Color.BLACK);
+        g2.drawString("Válvula Cerrada", tanqueX - 155, tanqueY + 45);
+
+        // Tanque
+        g2.setColor(Color.GRAY);
+        g2.fillOval(tanqueX, tanqueY, tanqueW, 30);
+        g2.fillRect(tanqueX, tanqueY + 15, tanqueW, tanqueH);
+        g2.fillOval(tanqueX, tanqueY + tanqueH, tanqueW, 30);
+
+        // Agua
+        int nivelPix = (int) (tanqueH * nivel);
+        g2.setColor(new Color(0, 120, 255, 200));
+        g2.fillRect(tanqueX, tanqueY + tanqueH - nivelPix + 15, tanqueW, nivelPix);
+        g2.fillOval(tanqueX, tanqueY + tanqueH - nivelPix + 15 + nivelPix - 1, tanqueW, 30);
+
+        // Salida tubería
+        g2.setColor(Color.DARK_GRAY);
+        g2.fillRect(tanqueX + tanqueW / 2 - 5, tanqueY + tanqueH + 30, 10, 20);
+        g2.fillRect(tanqueX + tanqueW / 2 - 5, tanqueY + tanqueH + 50, 100, 10);
+        g2.fillRect(tanqueX + tanqueW / 2 + 95, tanqueY + tanqueH + 40, 10, 20);
+        if (consumoActivo && nivel > 0.05) {
+            g2.setColor(Color.BLUE);
+            g2.fillOval(tanqueX + tanqueW / 2 + 97, tanqueY + tanqueH + 60, 6, 6);
+        }
+
+        // LT - LC - SP
+        g2.setColor(new Color(135, 206, 250));
+        g2.fillOval(tanqueX + tanqueW + 40, tanqueY + 180, 40, 40);
+        g2.setColor(Color.BLACK);
+        g2.drawString("LT", tanqueX + tanqueW + 53, tanqueY + 205);
+
+        g2.setColor(new Color(144, 238, 144));
+        g2.fillOval(tanqueX + tanqueW + 100, tanqueY + 180, 40, 40);
+        g2.setColor(Color.BLACK);
+        g2.drawString("LC", tanqueX + tanqueW + 113, tanqueY + 205);
+
+        // SP Box
+        g2.setColor(new Color(173, 216, 230));
+        g2.fillRect(tanqueX + tanqueW + 160, tanqueY + 180, 90, 30);
+        g2.setColor(Color.BLACK);
+        g2.drawString("SP = " + String.format("%.2f", setPoint) + " m", tanqueX + tanqueW + 165, tanqueY + 200);
+
+        // Nivel numérico
+        g2.setColor(Color.BLACK);
+        g2.drawString("NIVEL NUMÉRICO", tanqueX + tanqueW + 30, tanqueY + 100);
+        g2.setColor(new Color(135, 206, 250));
+        g2.fillRect(tanqueX + tanqueW + 30, tanqueY + 110, 70, 30);
+        g2.setColor(Color.BLACK);
+        g2.drawString(String.format("%.2f m", nivel), tanqueX + tanqueW + 45, tanqueY + 130);
+
+        // Línea punteada control
+        Stroke old = g2.getStroke();
+        g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{4}, 0));
+        g2.setColor(Color.BLACK);
+        g2.drawLine(tanqueX + tanqueW + 60, tanqueY + 200, tanqueX + tanqueW + 100, tanqueY + 200);
+        g2.drawLine(tanqueX + tanqueW + 140, tanqueY + 200, tanqueX + tanqueW + 160, tanqueY + 200);
+        g2.setStroke(old);
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("ControlNivelTanque");
+        frame.setSize(1000, 700);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+
+        JPanel panelSuperior = new JPanel();
+        JTextField campoSP = new JTextField("0.70", 5);
+        JButton iniciar = new JButton("Iniciar"), pausar = new JButton("Pausar"), reiniciar = new JButton("Reiniciar");
+
+        panelSuperior.add(new JLabel("SetPoint (0–1):"));
+        panelSuperior.add(campoSP);
+        panelSuperior.add(iniciar);
+        panelSuperior.add(pausar);
+        panelSuperior.add(reiniciar);
+
+        ControlNivelTanque sim = new ControlNivelTanque(campoSP);
+        iniciar.addActionListener(e -> sim.iniciar());
+        pausar.addActionListener(e -> sim.pausar());
+        reiniciar.addActionListener(e -> sim.reiniciar());
+
+        frame.add(panelSuperior, BorderLayout.NORTH);
+        frame.add(sim, BorderLayout.CENTER);
+        frame.setVisible(true);
+    }
+}
