@@ -77,54 +77,67 @@ public class ControlNivelTanque extends JPanel {
 * */
 
         int tanqueX = 300, tanqueY = 100, tanqueW = 100, tanqueH = 300;
+        int tuberiaEntradaX = tanqueX - 140; // Modificar estas coordenadas para mover la Valvula de Entrada horizontalmente.
+        int tuberiaEntradaY = tanqueY + 30; // Modificar estas coordenadas para mover la Valvula de Entrada verticalmente.
 
-        // Válvula Abierta
-        g2.setColor(Color.WHITE);
-        g2.fillRoundRect(tanqueX - 160, tanqueY - 90, 60, 40, 10, 10);
-        g2.setColor(new Color(0, 200, 0));
-        Polygon abierta = new Polygon();
-        abierta.addPoint(tanqueX - 145, tanqueY - 65);
-        abierta.addPoint(tanqueX - 155, tanqueY - 50);
-        abierta.addPoint(tanqueX - 135, tanqueY - 50);
-        g2.fill(abierta);
-        g2.fillArc(tanqueX - 152, tanqueY - 80, 15, 15, 0, 180);
-        g2.setColor(new Color(198, 255, 198));
-        g2.fillRoundRect(tanqueX - 160, tanqueY - 50, 90, 20, 10, 10);
-        g2.setColor(Color.BLACK);
-        g2.setFont(new Font("Arial", Font.PLAIN, 12));
-        g2.drawString("Válvula Abierta", tanqueX - 155, tanqueY - 35);
+        // ----------- TUBERIA ENTRADA -------------
 
-        // Válvula Cerrada
-        g2.setColor(Color.WHITE);
-        g2.fillRoundRect(tanqueX - 160, tanqueY - 10, 60, 40, 10, 10);
-        g2.setColor(new Color(200, 0, 0));
-        Polygon cerrada = new Polygon();
-        cerrada.addPoint(tanqueX - 145, tanqueY + 15);
-        cerrada.addPoint(tanqueX - 155, tanqueY + 30);
-        cerrada.addPoint(tanqueX - 135, tanqueY + 30);
-        g2.fill(cerrada);
-        g2.fillArc(tanqueX - 152, tanqueY - 5, 15, 15, 0, 180);
-        g2.setColor(new Color(255, 200, 200));
-        g2.fillRoundRect(tanqueX - 160, tanqueY + 30, 90, 20, 10, 10);
-        g2.setColor(Color.BLACK);
-        g2.drawString("Válvula Cerrada", tanqueX - 155, tanqueY + 45);
+        // Tuberia Izquierda
+        g2.setColor(Color.BLUE);
+        g2.fillRoundRect(tuberiaEntradaX, tuberiaEntradaY, 60, 10, 0, 0);
 
-        // Tanque
+        // Tuberia Derecha
+        g2.setColor(Color.GRAY);
+        g2.fillRoundRect(tuberiaEntradaX + 80, tuberiaEntradaY, 60, 10, 0, 0);
+
+        // Coordenadas del centro de la válvula
+
+        int centroX = tuberiaEntradaX + 70;
+        int centroY = tuberiaEntradaY + 5;
+
+        // ----------- VALVULA ------------
+
+        if (valvulaAbierta) {
+            dibujarValvula(g2, centroX, centroY, Color.GREEN);
+
+            // Label
+
+            g2.fillRoundRect(tuberiaEntradaX + 20, tuberiaEntradaY - 50, 100, 20, 10, 10);
+            g2.setColor(Color.BLACK);
+            g2.setFont(new Font("Arial", Font.PLAIN, 12));
+            g2.drawString("Válvula Abierta", tuberiaEntradaX + 25, tuberiaEntradaY - 36);
+        } else {
+            dibujarValvula(g2, centroX, centroY, Color.RED);
+
+            // Label
+
+            g2.fillRoundRect(tuberiaEntradaX + 20, tuberiaEntradaY - 50, 100, 20, 10, 10);
+            g2.setColor(Color.BLACK);
+            g2.setFont(new Font("Arial", Font.PLAIN, 12));
+            g2.drawString("Válvula Cerrada", tuberiaEntradaX + 25, tuberiaEntradaY - 36);
+        }
+
+        // ------------ Tanque ------------
         g2.setColor(Color.GRAY);
         g2.fillOval(tanqueX, tanqueY, tanqueW, 30);
         g2.fillRect(tanqueX, tanqueY + 15, tanqueW, tanqueH);
         g2.fillOval(tanqueX, tanqueY + tanqueH, tanqueW, 30);
 
-        // Agua
+        // ---------- AGUA DEL TANQUE -----------
         int nivelPix = (int) (tanqueH * nivel);
         g2.setColor(new Color(0, 120, 255, 200));
         g2.fillRect(tanqueX, tanqueY + tanqueH - nivelPix + 15, tanqueW, nivelPix);
-        g2.fillOval(tanqueX, tanqueY + tanqueH - nivelPix + 15 + nivelPix - 1, tanqueW, 30);
+        g2.fillOval(tanqueX, tanqueY + tanqueH - nivelPix + nivelPix - 1, tanqueW, 30);
+
+        // ---------- SALIDA TUBERIA -----------
+
+        int tuberiaSalidaY = tanqueY + tanqueH + 30;
+        int tuberiaSalidaX = tanqueX + tanqueW / 2 - 5;
 
         // Salida tubería
         g2.setColor(Color.DARK_GRAY);
-        g2.fillRect(tanqueX + tanqueW / 2 - 5, tanqueY + tanqueH + 30, 10, 20);
-        g2.fillRect(tanqueX + tanqueW / 2 - 5, tanqueY + tanqueH + 50, 100, 10);
+        g2.fillRect(tuberiaSalidaX, tuberiaSalidaY, 10, 20);
+        g2.fillRect(tuberiaSalidaX, tuberiaSalidaY + 20, 100, 10);
         g2.fillRect(tanqueX + tanqueW / 2 + 95, tanqueY + tanqueH + 40, 10, 20);
         if (consumoActivo && nivel > 0.05) {
             g2.setColor(Color.BLUE);
@@ -189,5 +202,31 @@ public class ControlNivelTanque extends JPanel {
         frame.add(panelSuperior, BorderLayout.NORTH);
         frame.add(sim, BorderLayout.CENTER);
         frame.setVisible(true);
+    }
+
+    // Metodos de Dibujo
+
+    public void dibujarValvula(Graphics2D g2, int centroX, int centroY, Color colorValvula) {
+        g2.setColor(colorValvula); // Verde fuerte
+
+        // Triángulo izquierdo
+        Polygon trianguloIzq = new Polygon();
+        trianguloIzq.addPoint(centroX, centroY);         // Punta inferior
+        trianguloIzq.addPoint(centroX - 20, centroY - 10); // Izquierda
+        trianguloIzq.addPoint(centroX - 20, centroY + 10); // Izquierda abajo
+        g2.fill(trianguloIzq);
+
+        // Triángulo derecho
+        Polygon trianguloDer = new Polygon();
+        trianguloDer.addPoint(centroX, centroY);          // Punta inferior
+        trianguloDer.addPoint(centroX + 20, centroY - 10);  // Derecha
+        trianguloDer.addPoint(centroX + 20, centroY + 10);  // Derecha abajo
+        g2.fill(trianguloDer);
+
+        // Línea vertical que conecta a la "tapa"
+        g2.fillRect(centroX - 3, centroY - 15, 4, 15); // Pequeño rectángulo vertical
+
+        // Semicírculo (arco) en la parte superior
+        g2.fillArc(centroX - 11, centroY - 20, 20, 20, 0, 180); // Semicírculo hacia abajo
     }
 }
