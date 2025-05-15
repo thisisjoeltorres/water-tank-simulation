@@ -102,19 +102,19 @@ public class ControlNivelTanque extends JPanel {
 
             // Label
 
-            g2.fillRoundRect(tuberiaEntradaX + 20, tuberiaEntradaY - 50, 100, 20, 10, 10);
+            g2.fillRoundRect(tuberiaEntradaX + 20, tuberiaEntradaY + 25, 100, 20, 10, 10);
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("Arial", Font.PLAIN, 12));
-            g2.drawString("Válvula Abierta", tuberiaEntradaX + 25, tuberiaEntradaY - 36);
+            g2.drawString("Válvula Abierta", tuberiaEntradaX + 25, tuberiaEntradaY + 39);
         } else {
             dibujarValvula(g2, centroX, centroY, Color.RED);
 
             // Label
 
-            g2.fillRoundRect(tuberiaEntradaX + 20, tuberiaEntradaY - 50, 100, 20, 10, 10);
+            g2.fillRoundRect(tuberiaEntradaX + 20, tuberiaEntradaY + 25, 100, 20, 10, 10);
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("Arial", Font.PLAIN, 12));
-            g2.drawString("Válvula Cerrada", tuberiaEntradaX + 25, tuberiaEntradaY - 36);
+            g2.drawString("Válvula Cerrada", tuberiaEntradaX + 25, tuberiaEntradaY + 39);
         }
 
         // ------------ Tanque ------------
@@ -152,34 +152,11 @@ public class ControlNivelTanque extends JPanel {
         int lineaNivelX = tanqueX + tanqueW + 10;
         int widthHorizontalLevelLine = 50;
 
-        // Salida tubería
-        g2.setColor(Color.DARK_GRAY);
-        g2.fillRect(lineaNivelX, lineaNivelY, widthHorizontalLevelLine, 2); // Linea Horizontal Cima
-        g2.fillRect(lineaNivelX + 50, lineaNivelY, 2, 282); // Linea Vertical
-        g2.fillRect(lineaNivelX, lineaNivelY + 280, widthHorizontalLevelLine, 2); // Linea Horizontal Suelo
-
-        // LT BOX
-        g2.setColor(new Color(135, 206, 250));
-        g2.fillOval(tanqueX + tanqueW + 40, tanqueY + 140, 40, 40);
-        g2.setColor(Color.BLACK);
-        g2.drawString("LT", tanqueX + tanqueW + 53, tanqueY + 165);
-
-        // LC BOX
-        g2.setColor(new Color(144, 238, 144));
-        g2.fillOval(tanqueX + tanqueW + 100, tanqueY + 180, 40, 40);
-        g2.setColor(Color.BLACK);
-        g2.drawString("LC", tanqueX + tanqueW + 113, tanqueY + 205);
-
-        // SP BOX
-        g2.setColor(new Color(173, 216, 230));
-        g2.fillRect(tanqueX + tanqueW + 160, tanqueY + 180, 90, 30);
-        g2.setColor(Color.BLACK);
-        g2.drawString("SP = " + String.format("%.2f", setPoint) + " m", tanqueX + tanqueW + 165, tanqueY + 200);
-
         // ----------- NIVEL NUMERICO - BOX ----------
 
         int numLevelBoxY = tanqueY + 80;
         int numLevelBoxX = tanqueX + tanqueW + 80;
+        int numLevelDottedY = numLevelBoxY + 80;
 
         g2.setColor(Color.BLACK);
         g2.drawString("NIVEL NUMÉRICO", numLevelBoxX, numLevelBoxY - 10);
@@ -188,13 +165,136 @@ public class ControlNivelTanque extends JPanel {
         g2.setColor(Color.BLACK);
         g2.drawString(String.format("%.2f m", nivel), numLevelBoxX + 15, numLevelBoxY + 20);
 
-        // Línea punteada control
-        Stroke old = g2.getStroke();
-        g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{4}, 0));
+        // Salida tubería
+        g2.setColor(Color.DARK_GRAY);
+        g2.fillRect(lineaNivelX, lineaNivelY, widthHorizontalLevelLine, 2); // Linea Horizontal Cima
+        g2.fillRect(lineaNivelX + 50, lineaNivelY, 2, 282); // Linea Vertical
+        g2.fillRect(lineaNivelX, lineaNivelY + 280, widthHorizontalLevelLine, 2); // Linea Horizontal Suelo
+
+        // Variables Linea Salida LT LC
+
+        int statusBoxY = tanqueY + 165;
+        int statusBoxX = tanqueX + tanqueW + 100;
+
+        // LT BOX
+        g2.setColor(new Color(135, 206, 250));
+        g2.fillOval(statusBoxX - 60, tanqueY + 140, 40, 40);
         g2.setColor(Color.BLACK);
-        g2.drawLine(tanqueX + tanqueW + 60, tanqueY + 200, tanqueX + tanqueW + 100, tanqueY + 200);
-        g2.drawLine(tanqueX + tanqueW + 140, tanqueY + 200, tanqueX + tanqueW + 160, tanqueY + 200);
-        g2.setStroke(old);
+        g2.drawString("LT", statusBoxX - 47, statusBoxY);
+
+        // LC BOX
+        g2.setColor(new Color(144, 238, 144));
+        g2.fillOval(statusBoxX + 100, statusBoxY - 25, 40, 40);
+        g2.setColor(Color.BLACK);
+        g2.drawString("LC", statusBoxX + 113, statusBoxY);
+
+        // SP BOX
+        g2.setColor(new Color(173, 216, 230));
+        g2.fillRect(statusBoxX + 180, statusBoxY - 20, 90, 30);
+        g2.setColor(Color.BLACK);
+        g2.drawString("SP = " + String.format("%.2f", setPoint) + " m", statusBoxX + 190, statusBoxY);
+
+        // LINEA PUNTEADA - HACIA LC
+
+        Stroke oldStroke = g2.getStroke();
+        g2.setColor(Color.BLACK);
+
+        // Dashed stroke
+        float[] dashPattern = {6f, 6f};  // Dash length and space
+        Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, dashPattern, 0);
+        g2.setStroke(dashed);
+
+        // Line start and end
+        int x1 = statusBoxX - 20;
+        int y1 = numLevelDottedY;
+        int x2 = statusBoxX + 100;
+        int y2 = numLevelDottedY;
+
+        // Draw dashed line
+        g2.drawLine(x1, y1, x2, y2);
+
+        // Restore stroke
+        g2.setStroke(oldStroke);
+
+        // Draw arrowhead
+        int arrowSize = 10;
+        double angle = Math.atan2(y2 - y1, x2 - x1);
+
+        int xArrow1 = (int) (x2 - arrowSize * Math.cos(angle - Math.PI / 6));
+        int yArrow1 = (int) (y2 - arrowSize * Math.sin(angle - Math.PI / 6));
+
+        int xArrow2 = (int) (x2 - arrowSize * Math.cos(angle + Math.PI / 6));
+        int yArrow2 = (int) (y2 - arrowSize * Math.sin(angle + Math.PI / 6));
+
+        // Arrowhead polygon
+        Polygon arrowHead = new Polygon();
+        arrowHead.addPoint(x2, y2); // Tip
+        arrowHead.addPoint(xArrow1, yArrow1);
+        arrowHead.addPoint(xArrow2, yArrow2);
+
+        g2.fillPolygon(arrowHead);
+
+        // LÍNEA CON FLECHA HACIA LA IZQUIERDA - DESDE SP HACIA LC
+
+        Stroke oldStrokeB = g2.getStroke();
+        g2.setColor(Color.BLACK);
+
+        // Solid stroke (default)
+        Stroke solidB = new BasicStroke(2);
+        g2.setStroke(solidB);
+
+        // Line start and end (reversed for leftward arrow)
+        int xB1 = statusBoxX + 177;
+        int yB1 = numLevelDottedY;
+        int xB2 = statusBoxX + 143;
+        int yB2 = numLevelDottedY;
+
+        // Draw solid line
+        g2.drawLine(xB1, yB1, xB2, yB2);
+
+        // Restore stroke
+        g2.setStroke(oldStrokeB);
+
+        // Draw arrowhead pointing left
+        int arrowSizeB = 10;
+        double angleB = Math.atan2(yB2 - yB1, xB2 - xB1);  // Will point left now
+
+        int xArrow1B = (int) (xB2 - arrowSizeB * Math.cos(angleB - Math.PI / 6));
+        int yArrow1B = (int) (yB2 - arrowSizeB * Math.sin(angleB - Math.PI / 6));
+
+        int xArrow2B = (int) (xB2 - arrowSizeB * Math.cos(angleB + Math.PI / 6));
+        int yArrow2B = (int) (yB2 - arrowSizeB * Math.sin(angleB + Math.PI / 6));
+
+        // Arrowhead polygon
+        Polygon arrowHeadB = new Polygon();
+        arrowHeadB.addPoint(xB2, yB2);       // Tip
+        arrowHeadB.addPoint(xArrow1B, yArrow1B);
+        arrowHeadB.addPoint(xArrow2B, yArrow2B);
+
+        g2.fillPolygon(arrowHeadB);
+
+        // Linea Valvula a LC
+
+        Stroke oldStrokeC = g2.getStroke();
+        g2.setColor(Color.BLACK);
+
+        // Dashed stroke setup
+        float[] dashPatternC = {6f, 6f};
+        Stroke dashedStrokeC = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, dashPatternC, 0);
+        g2.setStroke(dashedStrokeC);
+
+        // Linea Sobre Valvula
+        g2.drawLine(statusBoxX - 270, 70, statusBoxX - 270, 110);
+
+        // Linea Vertical
+        g2.drawLine(statusBoxX + 120, 70, statusBoxX + 120, 240);
+
+        // Linea hacia LC Horizontal
+        g2.drawLine(statusBoxX - 270, statusBoxY - 200, statusBoxX + 124, statusBoxY - 200);
+
+        // Restaurar estilo original
+        g2.setStroke(oldStrokeC);
+
     }
 
     public static void main(String[] args) {
