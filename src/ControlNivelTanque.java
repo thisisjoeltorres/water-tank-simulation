@@ -7,33 +7,74 @@ import javax.swing.*;
 public class ControlNivelTanque extends JPanel {
     private double nivel = 0.0;
     private double setPoint = 0.7;
-    private boolean valvulaAbierta = true;
+    private boolean valvulaAbierta = false;
+
     private boolean simulando = false;
     private boolean consumoActivo = false;
     private double tiempo = 0;
     private Timer timer;
     private JTextField setPointField;
 
+    private Rectangle areaValvula;
+
     public ControlNivelTanque(JTextField field) {
         this.setPointField = field;
         timer = new Timer(100, e -> actualizar());
+
+        // Inicializar el área de la válvula
+        int centroX = 230;  // Coordenadas aproximadas del centro
+        int centroY = 135;
+        int ancho = 50;
+        int alto = 40;
+        areaValvula = new Rectangle(centroX - ancho / 2, centroY - alto / 2, ancho, alto);
+
+        // Añadir los listeners solo una vez en el constructor
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (areaValvula.contains(e.getPoint())) {
+                    valvulaAbierta = !valvulaAbierta;
+                    if(valvulaAbierta){
+                        abrirValvula();
+                        repaint();
+                        System.out.println("¡Válvula clickeada!");
+                    }
+                }
+            }
+        });
+
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (areaValvula.contains(e.getPoint())) {
+                    setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                } else {
+                    setCursor(Cursor.getDefaultCursor());
+                }
+            }
+        });
+    }
+
+    private double funcionConsumo(double tiempo) {
+        return 0.004 + 0.003 * Math.sin(tiempo);
     }
 
     private void actualizar() {
         tiempo += 0.1;
         if (!simulando) return;
 
-        valvulaAbierta = nivel < setPoint;
 
-        if (valvulaAbierta) {
+        if(valvulaAbierta) {
+            valvulaAbierta = nivel < setPoint;
             nivel += 0.01;
             if (nivel > 1.0) nivel = 1.0;
         }
 
         if (nivel >= setPoint) consumoActivo = true;
 
+
         if (consumoActivo) {
-            double consumo = 0.004 + 0.003 * Math.sin(tiempo);
+            double consumo = funcionConsumo(tiempo);
             nivel -= consumo;
             if (nivel < 0) nivel = 0;
         }
@@ -54,11 +95,18 @@ public class ControlNivelTanque extends JPanel {
         }
     }
 
-    public void pausar() { simulando = false; }
+    public void abrirValvula() {
+        valvulaAbierta = true;
+        simulando = true;
+        repaint();
+    }
+
+    public void pausar() { simulando = false; valvulaAbierta = false; repaint(); }
 
     public void reiniciar() {
         simulando = false;
         consumoActivo = false;
+        valvulaAbierta = false;
         nivel = 0.0;
         tiempo = 0;
         repaint();
@@ -70,11 +118,6 @@ public class ControlNivelTanque extends JPanel {
         setBackground(new Color(250, 250, 250));
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-/*
-        for (int x = 0; x < getWidth(); x += 20)
-            for (int y = 0; y < getHeight(); y += 20)
-                g2.setColor(new Color(220, 220, 220)).fillRect(x, y, 1, 1);
-* */
 
         int tanqueX = 300, tanqueY = 100, tanqueW = 100, tanqueH = 300;
         int tuberiaEntradaX = tanqueX - 140; // Modificar estas coordenadas para mover la Valvula de Entrada horizontalmente.
@@ -204,6 +247,8 @@ public class ControlNivelTanque extends JPanel {
         frame.setLayout(new BorderLayout());
 
         JPanel panelSuperior = new JPanel();
+        JPanel panelInferior = new JPanel();
+
         JTextField campoSP = new JTextField("0.70", 5);
         JButton iniciar = new JButton("Iniciar"), pausar = new JButton("Pausar"), reiniciar = new JButton("Reiniciar");
 
@@ -213,12 +258,17 @@ public class ControlNivelTanque extends JPanel {
         panelSuperior.add(pausar);
         panelSuperior.add(reiniciar);
 
+        JLabel funcionConsumo = new JLabel("Función de consumo: f(t) = 0.004 + 0.003 * sen(t)");
+
+        panelInferior.add(funcionConsumo);
+
         ControlNivelTanque sim = new ControlNivelTanque(campoSP);
         iniciar.addActionListener(e -> sim.iniciar());
         pausar.addActionListener(e -> sim.pausar());
         reiniciar.addActionListener(e -> sim.reiniciar());
 
         frame.add(panelSuperior, BorderLayout.NORTH);
+        frame.add(panelInferior, BorderLayout.SOUTH);
         frame.add(sim, BorderLayout.CENTER);
         frame.setVisible(true);
     }
@@ -247,5 +297,6 @@ public class ControlNivelTanque extends JPanel {
 
         // Semicírculo (arco) en la parte superior
         g2.fillArc(centroX - 11, centroY - 20, 20, 20, 0, 180); // Semicírculo hacia abajo
+
     }
 }
