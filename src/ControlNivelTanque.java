@@ -1,21 +1,26 @@
 
 import javax.swing.*;
-        import java.awt.*;
-        import java.awt.event.*;
-        import java.awt.geom.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
 
 public class ControlNivelTanque extends JPanel {
     private double nivel = 0.0;
     private double setPoint = 0.7;
     private boolean valvulaAbierta = false;
 
-    private boolean simulando = false;
+    private boolean simulando = true;
     private boolean consumoActivo = false;
     private double tiempo = 0;
     private Timer timer;
     private JTextField setPointField;
 
     private Rectangle areaValvula;
+
+    private JButton botonConsumo;
+    private boolean modoAutomatico = true;
+
+    private JButton botonModo;
 
     public ControlNivelTanque(JTextField field) {
         this.setPointField = field;
@@ -37,7 +42,6 @@ public class ControlNivelTanque extends JPanel {
                     if(valvulaAbierta){
                         abrirValvula();
                         repaint();
-                        System.out.println("¡Válvula clickeada!");
                     }
                 }
             }
@@ -53,25 +57,69 @@ public class ControlNivelTanque extends JPanel {
                 }
             }
         });
+
+        // Botón de modo en la parte superior
+        botonModo = new JButton( "Modo Automático");
+        botonModo.setBounds(270, 20, 150, 30);
+        botonModo.addActionListener(e -> toggleModo());
+
+        // Botón de consumo en la parte inferior
+        botonConsumo = new JButton("Activar Consumo");
+        botonConsumo.addActionListener(e -> toggleConsumo());
+        botonConsumo.setBounds(270, 480, 150, 30);
+
+        botonConsumo.setEnabled(false);
+        botonModo.setEnabled(false);
+
+        this.add(botonConsumo);
+        this.add(botonModo);
+        setLayout(null);
+    }
+
+    private void toggleModo() {
+        botonConsumo.setEnabled(modoAutomatico);
+        modoAutomatico = !modoAutomatico;
+        botonModo.setText(modoAutomatico ? "Modo Automático" : "Modo Manual");
+
+        valvulaAbierta = false;
+        consumoActivo = false;
+
+        repaint();
+    }
+
+    private void toggleConsumo() {
+        consumoActivo = !consumoActivo;
+        botonConsumo.setText(consumoActivo ? "Desactivar Consumo" : "Activar Consumo");
+        repaint();
+    }
+
+    private void activarConsumo() {
+        consumoActivo = true;
+        botonConsumo.setText("Activar Consumo");
     }
 
     private double funcionConsumo(double tiempo) {
         return 0.004 + 0.003 * Math.sin(tiempo);
     }
 
+    // Actualización según el modo
     private void actualizar() {
         tiempo += 0.1;
         if (!simulando) return;
 
-
-        if(valvulaAbierta) {
+        if(modoAutomatico){
             valvulaAbierta = nivel < setPoint;
+        }
+
+        if (valvulaAbierta) {
             nivel += 0.01;
             if (nivel > 1.0) nivel = 1.0;
         }
 
-        if (nivel >= setPoint) consumoActivo = true;
 
+        if(modoAutomatico){
+            if (nivel >= setPoint) activarConsumo();
+        }
 
         if (consumoActivo) {
             double consumo = funcionConsumo(tiempo);
@@ -88,7 +136,10 @@ public class ControlNivelTanque extends JPanel {
             if (sp < 0 || sp > 1.0) throw new NumberFormatException();
             this.setPoint = sp;
             simulando = true;
+            modoAutomatico = true;
+            valvulaAbierta = true;
             consumoActivo = false;
+            botonModo.setEnabled(true);
             timer.start();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "SetPoint inválido (0-1)", "Error", JOptionPane.ERROR_MESSAGE);
@@ -101,7 +152,11 @@ public class ControlNivelTanque extends JPanel {
         repaint();
     }
 
-    public void pausar() { simulando = false; valvulaAbierta = false; repaint(); }
+    public void pausar() {
+        simulando = false;
+        botonModo.setEnabled(false);
+        repaint();
+    }
 
     public void reiniciar() {
         simulando = false;
@@ -109,6 +164,7 @@ public class ControlNivelTanque extends JPanel {
         valvulaAbierta = false;
         nivel = 0.0;
         tiempo = 0;
+        botonModo.setEnabled(false);
         repaint();
     }
 
@@ -126,11 +182,11 @@ public class ControlNivelTanque extends JPanel {
         // ----------- TUBERIA ENTRADA -------------
 
         // Tuberia Izquierda
-        g2.setColor(Color.BLUE);
+        g2.setColor(new Color(135, 206, 250));
         g2.fillRoundRect(tuberiaEntradaX, tuberiaEntradaY, 60, 10, 0, 0);
 
         // Tuberia Derecha
-        g2.setColor(Color.GRAY);
+        g2.setColor(valvulaAbierta ? new Color(135, 206, 250) : Color.GRAY);
         g2.fillRoundRect(tuberiaEntradaX + 80, tuberiaEntradaY, 60, 10, 0, 0);
 
         // Coordenadas del centro de la válvula
@@ -153,7 +209,6 @@ public class ControlNivelTanque extends JPanel {
             dibujarValvula(g2, centroX, centroY, Color.RED);
 
             // Label
-
             g2.fillRoundRect(tuberiaEntradaX + 20, tuberiaEntradaY + 25, 100, 20, 10, 10);
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -168,9 +223,12 @@ public class ControlNivelTanque extends JPanel {
 
         // ---------- AGUA DEL TANQUE -----------
         int nivelPix = (int) (tanqueH * nivel);
-        g2.setColor(new Color(0, 120, 255, 200));
-        g2.fillRect(tanqueX, tanqueY + tanqueH - nivelPix + 15, tanqueW, nivelPix);
-        g2.fillOval(tanqueX, tanqueY + tanqueH - nivelPix + nivelPix - 1, tanqueW, 30);
+
+        if(nivel > 0){
+            g2.setColor(  new Color(135, 206, 250)   );
+            g2.fillRect(tanqueX, tanqueY + tanqueH - nivelPix + 15, tanqueW, nivelPix);
+            g2.fillOval(tanqueX, tanqueY + tanqueH - nivelPix + nivelPix - 1, tanqueW, 30);
+        }
 
         // ---------- SALIDA TUBERIA -----------
 
@@ -178,15 +236,10 @@ public class ControlNivelTanque extends JPanel {
         int tuberiaSalidaX = tanqueX + tanqueW / 2 - 5;
 
         // Salida tubería
-        g2.setColor(Color.DARK_GRAY);
+        g2.setColor(consumoActivo && nivel > 0 ? new Color(135, 206, 250):  Color.GRAY);
         g2.fillRect(tuberiaSalidaX, tuberiaSalidaY, 10, 20);
         g2.fillRect(tuberiaSalidaX, tuberiaSalidaY + 20, 100, 10);
         g2.fillRect(tuberiaSalidaX + 100, tuberiaSalidaY + 20, 10, 20);
-        if (consumoActivo && nivel > 0.05) {
-            g2.setColor(Color.BLUE);
-            g2.fillOval(tanqueX + tanqueW / 2 + 97, tanqueY + tanqueH + 60, 6, 6);
-        }
-
         // -------- LINEAS DE NIVEL ---------
 
         // LINEAS DE NIVEL - DERECHA
@@ -340,6 +393,32 @@ public class ControlNivelTanque extends JPanel {
 
     }
 
+    // Metodos de Dibujo
+    public void dibujarValvula(Graphics2D g2, int centroX, int centroY, Color colorValvula) {
+        g2.setColor(colorValvula); // Verde fuerte
+
+        // Triángulo izquierdo
+        Polygon trianguloIzq = new Polygon();
+        trianguloIzq.addPoint(centroX, centroY);         // Punta inferior
+        trianguloIzq.addPoint(centroX - 20, centroY - 10); // Izquierda
+        trianguloIzq.addPoint(centroX - 20, centroY + 10); // Izquierda abajo
+        g2.fill(trianguloIzq);
+
+        // Triángulo derecho
+        Polygon trianguloDer = new Polygon();
+        trianguloDer.addPoint(centroX, centroY);          // Punta inferior
+        trianguloDer.addPoint(centroX + 20, centroY - 10);  // Derecha
+        trianguloDer.addPoint(centroX + 20, centroY + 10);  // Derecha abajo
+        g2.fill(trianguloDer);
+
+        // Línea vertical que conecta a la "tapa"
+        g2.fillRect(centroX - 3, centroY - 15, 4, 15); // Pequeño rectángulo vertical
+
+        // Semicírculo (arco) en la parte superior
+        g2.fillArc(centroX - 11, centroY - 20, 20, 20, 0, 180); // Semicírculo hacia abajo
+
+    }
+
     public static void main(String[] args) {
         JFrame frame = new JFrame("ControlNivelTanque");
         frame.setSize(1000, 700);
@@ -373,30 +452,4 @@ public class ControlNivelTanque extends JPanel {
         frame.setVisible(true);
     }
 
-    // Metodos de Dibujo
-
-    public void dibujarValvula(Graphics2D g2, int centroX, int centroY, Color colorValvula) {
-        g2.setColor(colorValvula); // Verde fuerte
-
-        // Triángulo izquierdo
-        Polygon trianguloIzq = new Polygon();
-        trianguloIzq.addPoint(centroX, centroY);         // Punta inferior
-        trianguloIzq.addPoint(centroX - 20, centroY - 10); // Izquierda
-        trianguloIzq.addPoint(centroX - 20, centroY + 10); // Izquierda abajo
-        g2.fill(trianguloIzq);
-
-        // Triángulo derecho
-        Polygon trianguloDer = new Polygon();
-        trianguloDer.addPoint(centroX, centroY);          // Punta inferior
-        trianguloDer.addPoint(centroX + 20, centroY - 10);  // Derecha
-        trianguloDer.addPoint(centroX + 20, centroY + 10);  // Derecha abajo
-        g2.fill(trianguloDer);
-
-        // Línea vertical que conecta a la "tapa"
-        g2.fillRect(centroX - 3, centroY - 15, 4, 15); // Pequeño rectángulo vertical
-
-        // Semicírculo (arco) en la parte superior
-        g2.fillArc(centroX - 11, centroY - 20, 20, 20, 0, 180); // Semicírculo hacia abajo
-
-    }
 }
