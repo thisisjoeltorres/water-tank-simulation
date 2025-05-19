@@ -24,7 +24,7 @@ public class ControlNivelTanque extends JPanel {
 
     public ControlNivelTanque(JTextField field) {
         this.setPointField = field;
-        timer = new Timer(100, e -> actualizar());
+        timer = new Timer(150, e -> actualizar());
 
         // Inicializar el área de la válvula
         int centroX = 230;  // Coordenadas aproximadas del centro
@@ -37,7 +37,7 @@ public class ControlNivelTanque extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (areaValvula.contains(e.getPoint())) {
+                if (areaValvula.contains(e.getPoint()) && puedeAbrirValvula()) {
                     valvulaAbierta = !valvulaAbierta;
                     if(valvulaAbierta){
                         abrirValvula();
@@ -51,7 +51,11 @@ public class ControlNivelTanque extends JPanel {
             @Override
             public void mouseMoved(MouseEvent e) {
                 if (areaValvula.contains(e.getPoint())) {
-                    setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    if (puedeAbrirValvula()) {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    } else {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    }
                 } else {
                     setCursor(Cursor.getDefaultCursor());
                 }
@@ -74,6 +78,10 @@ public class ControlNivelTanque extends JPanel {
         this.add(botonConsumo);
         this.add(botonModo);
         setLayout(null);
+    }
+
+    private boolean puedeAbrirValvula(){
+        return !modoAutomatico && nivel < setPoint;
     }
 
     private void toggleModo() {
@@ -99,7 +107,7 @@ public class ControlNivelTanque extends JPanel {
     }
 
     private double funcionConsumo(double tiempo) {
-        return 0.004 + 0.003 * Math.sin(tiempo);
+        return 0.002 + 0.001 * Math.sin(tiempo);
     }
 
     // Actualización según el modo
@@ -109,6 +117,10 @@ public class ControlNivelTanque extends JPanel {
 
         if(modoAutomatico){
             valvulaAbierta = nivel < setPoint;
+        } else {
+            if(nivel > setPoint) {
+                valvulaAbierta = false;
+            }
         }
 
         if (valvulaAbierta) {
