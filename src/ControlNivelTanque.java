@@ -1,8 +1,19 @@
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class ControlNivelTanque {
     public static void main(String[] args) {
+        FlatLightLaf.setup();
+
+        try {
+            UIManager.setLookAndFeel( new FlatDarculaLaf() );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         JFrame frame = new JFrame("ControlNivelTanque");
         frame.setSize(1000, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
