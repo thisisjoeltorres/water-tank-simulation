@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="formdev.flatlaf.swingx" type="repository">
+    <properties maven-id="com.formdev:flatlaf-swingx:3.6" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/formdev/flatlaf-swingx/3.6/flatlaf-swingx-3.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/formdev/flatlaf/3.6/flatlaf-3.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
