@@ -31,10 +31,46 @@ public class View extends JPanel {
         botonConsumo.setEnabled(false);
         botonModo.setEnabled(false);
 
+        // Aplicamos los estilos a los botones.
+
+        applyButtonStyles(botonConsumo);
+        applyButtonStyles(botonModo);
+
+        // Agregamos los botones a nuestra intefaz.
+
         this.add(botonConsumo);
         this.add(botonModo);
 
         this.setLayout(null);
+    }
+
+    public void updateBotonConsumoStyle(boolean activo) {
+        // Vuelve al estilo original cuando no está activo
+        Color colorFondoActivado = Color.decode("#4285EC");  // Fondo claro
+        Color colorTextoActivado = Color.decode("#FFFFFF");  // Texto oscuro
+        Color colorFondoDesactivado = Color.decode("#EAEDF1");  // Fondo claro
+        Color colorTextoDesactivado = Color.decode("#040502");  // Texto oscuro
+
+        if (activo) {
+            botonConsumo.setBackground(colorFondoActivado);
+            botonConsumo.setForeground(colorTextoActivado);
+        } else {
+            botonConsumo.setBackground(colorFondoDesactivado);
+            botonConsumo.setForeground(colorTextoDesactivado);
+        }
+        botonConsumo.setOpaque(true);
+        botonConsumo.repaint();
+    }
+
+    public void applyButtonStyles(JButton button) {
+        Color colorFondo = Color.decode("#EAEDF1");  // Fondo
+        Color colorTexto = Color.decode("#040502");  // Texto
+
+        button.setBackground(colorFondo);
+        button.setForeground(colorTexto);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setOpaque(true);
     }
 
     public JTextField getSetPointField() {
@@ -54,6 +90,7 @@ public class View extends JPanel {
     }
 
     public void setBotonConsumoEnabled(boolean enabled) {
+        updateBotonConsumoStyle(enabled);  // <- Aquí
         botonConsumo.setEnabled(enabled);
     }
 
@@ -72,7 +109,7 @@ public class View extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        setBackground(new Color(102, 155, 188));
+        setBackground(new Color(239, 245, 253));
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -82,7 +119,11 @@ public class View extends JPanel {
 
         // ----------- TUBERIA ENTRADA -------------
         g2.setColor(new Color(135, 206, 250));
-        g2.fillRoundRect(tuberiaEntradaX, tuberiaEntradaY, 60, 10, 0, 0);
+        // Draw the main rectangle part (straight pipe body)
+        g2.fillRect(tuberiaEntradaX + 5, tuberiaEntradaY, 55, 10);
+
+// Draw the left rounded cap
+        g2.fillArc(tuberiaEntradaX, tuberiaEntradaY, 10, 10, 90, 180);
         g2.setColor(model.isValvulaAbierta() ? new Color(135, 206, 250) : Color.GRAY);
         g2.fillRoundRect(tuberiaEntradaX + 80, tuberiaEntradaY, 60, 10, 0, 0);
 
