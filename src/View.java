@@ -1,6 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.*;
+import java.util.Objects;
 
 public class View extends JPanel {
     private Model model;
@@ -8,6 +8,7 @@ public class View extends JPanel {
     private JButton botonConsumo;
     private JButton botonModo;
     private Rectangle areaValvula;
+    private Image imagenCasa;
 
     public View(Model model) {
         this.model = model;
@@ -15,14 +16,14 @@ public class View extends JPanel {
 
         // Inicializar el área de la válvula
         int centroX = 230;
-        int centroY = 135;
+        int centroY = 71;
         int ancho = 50;
         int alto = 40;
         areaValvula = new Rectangle(centroX - ancho / 2, centroY - alto / 2, ancho, alto);
 
         // Botón de modo en la parte superior
         botonModo = new JButton("Modo Automático");
-        botonModo.setBounds(270, 20, 150, 30);
+        botonModo.setBounds(270, 520, 150, 30);
 
         // Botón de consumo en la parte inferior
         botonConsumo = new JButton("Activar Consumo");
@@ -40,6 +41,14 @@ public class View extends JPanel {
 
         this.add(botonConsumo);
         this.add(botonModo);
+
+        // Imagen Casa
+
+        try {
+            imagenCasa = new ImageIcon(Objects.requireNonNull(getClass().getResource("house.png"))).getImage();
+        } catch (Exception e) {
+            System.out.println("No se pudo cargar la imagen: " + e.getMessage());
+        }
 
         this.setLayout(null);
     }
@@ -113,35 +122,54 @@ public class View extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int tanqueX = 300, tanqueY = 100, tanqueW = 100, tanqueH = 300;
+        int tanqueX = 400, tanqueY = 100, tanqueW = 100, tanqueH = 300;
         int tuberiaEntradaX = tanqueX - 140;
-        int tuberiaEntradaY = tanqueY + 30;
+        int tuberiaEntradaY = tanqueY - 30;
 
         // ----------- TUBERIA ENTRADA -------------
-        g2.setColor(new Color(135, 206, 250));
+        g2.setColor(new Color(75, 113, 248));
         // Draw the main rectangle part (straight pipe body)
-        g2.fillRect(tuberiaEntradaX + 5, tuberiaEntradaY, 55, 10);
+        g2.fillRect(tuberiaEntradaX - 90, tuberiaEntradaY, 45, 10);
 
-// Draw the left rounded cap
-        g2.fillArc(tuberiaEntradaX, tuberiaEntradaY, 10, 10, 90, 180);
-        g2.setColor(model.isValvulaAbierta() ? new Color(135, 206, 250) : Color.GRAY);
-        g2.fillRoundRect(tuberiaEntradaX + 80, tuberiaEntradaY, 60, 10, 0, 0);
+        // Tuberia entre la valvula de entrada y seguridad. Azul solo si la principal esta abierta.
+
+        g2.setColor(model.isValvulaAbierta() ? new Color(75, 113, 248) : Color.GRAY);
+        g2.fillRoundRect(tuberiaEntradaX - 20, tuberiaEntradaY, 80, 10, 0, 0);
+
+        // Draw the left rounded cap. Azul solo si la principal y la de seguridad estan abiertas.
+        g2.setColor(model.isValvulaAbierta() && model.isValvulaSeguridadAbierta() ? new Color(75, 113, 248) : Color.GRAY);
+        g2.fillRoundRect(tuberiaEntradaX + 80, tuberiaEntradaY, 105, 10, 0, 0);
+        g2.setColor(model.isValvulaAbierta() && model.isValvulaSeguridadAbierta() ? new Color(75, 113, 248) : Color.GRAY);
+        g2.fillRoundRect(tuberiaEntradaX + 185, tuberiaEntradaY, 10, 40, 0, 0);
 
         // Coordenadas del centro de la válvula
-        int centroX = tuberiaEntradaX + 70;
+        int centroX = tuberiaEntradaX - 30; // 70 inicial
         int centroY = tuberiaEntradaY + 5;
 
         // ----------- VALVULA ------------
         if (model.isValvulaAbierta()) {
-            dibujarValvula(g2, centroX, centroY, Color.GREEN);
+            dibujarValvula(g2, centroX, centroY, Color.GREEN, false);
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("Arial", Font.PLAIN, 12));
-            g2.drawString("Válvula Abierta", tuberiaEntradaX + 25, tuberiaEntradaY + 39);
+            g2.drawString("Válvula Abierta", tuberiaEntradaX - 75, tuberiaEntradaY + 32);
         } else {
-            dibujarValvula(g2, centroX, centroY, Color.RED);
+            dibujarValvula(g2, centroX, centroY, Color.RED, false);
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("Arial", Font.PLAIN, 12));
-            g2.drawString("Válvula Cerrada", tuberiaEntradaX + 25, tuberiaEntradaY + 39);
+            g2.drawString("Válvula Cerrada", tuberiaEntradaX - 75, tuberiaEntradaY + 32);
+        }
+
+        // ----------- VALVULA DE SEGURIDAD ------------
+        if (model.isValvulaSeguridadAbierta()) {
+            dibujarValvula(g2, centroX + 100, centroY, Color.GREEN, true);
+            g2.setColor(Color.BLACK);
+            g2.setFont(new Font("Arial", Font.PLAIN, 12));
+            g2.drawString("Activada", tuberiaEntradaX + 45, tuberiaEntradaY + 32);
+        } else {
+            dibujarValvula(g2, centroX + 100, centroY, Color.RED, true);
+            g2.setColor(Color.BLACK);
+            g2.setFont(new Font("Arial", Font.PLAIN, 12));
+            g2.drawString("Desactivada", tuberiaEntradaX + 40, tuberiaEntradaY + 32);
         }
 
         // ------------ Tanque ------------
@@ -153,7 +181,7 @@ public class View extends JPanel {
         // ---------- AGUA DEL TANQUE -----------
         int nivelPix = (int) (tanqueH * model.getNivel());
         if (model.getNivel() > 0) {
-            g2.setColor(new Color(135, 206, 250));
+            g2.setColor(new Color(75, 113, 248));
             g2.fillRect(tanqueX, tanqueY + tanqueH - nivelPix + 15, tanqueW, nivelPix);
             g2.fillOval(tanqueX, tanqueY + tanqueH - nivelPix + nivelPix - 1, tanqueW, 30);
         }
@@ -161,7 +189,7 @@ public class View extends JPanel {
         // ---------- SALIDA TUBERIA -----------
         int tuberiaSalidaY = tanqueY + tanqueH + 30;
         int tuberiaSalidaX = tanqueX + tanqueW / 2 - 5;
-        g2.setColor(model.isConsumoActivo() && model.getNivel() > 0 ? new Color(135, 206, 250) : Color.GRAY);
+        g2.setColor(model.isConsumoActivo() && model.getNivel() > 0 ? new Color(75, 113, 248) : Color.GRAY);
         g2.fillRect(tuberiaSalidaX, tuberiaSalidaY, 10, 20);
         g2.fillRect(tuberiaSalidaX, tuberiaSalidaY + 20, 100, 10);
         g2.fillRect(tuberiaSalidaX + 100, tuberiaSalidaY + 20, 10, 20);
@@ -176,6 +204,17 @@ public class View extends JPanel {
         int numLevelBoxX = tanqueX + tanqueW + 80;
         int numLevelDottedY = numLevelBoxY + 80;
 
+        // SECURITY BOX
+        g2.setColor(new Color(168,184,208));
+        g2.fillRect(numLevelBoxX - 400, numLevelBoxY + 55, 100, 50);
+        g2.setColor(Color.BLACK);
+        g2.drawString("LÓGICA DE", numLevelBoxX - 390, numLevelBoxY + 75);
+        g2.drawString("SEGURIDAD", numLevelBoxX - 390, numLevelBoxY + 90);
+        g2.setColor(Color.BLACK);
+        g2.drawString(String.format("%.2f m", model.getNivel()), numLevelBoxX + 15, numLevelBoxY + 20);
+
+        // NUMLEVEL BOX
+
         g2.setColor(Color.BLACK);
         g2.drawString("NIVEL NUMÉRICO", numLevelBoxX, numLevelBoxY - 10);
         g2.setColor(new Color(135, 206, 250));
@@ -183,15 +222,31 @@ public class View extends JPanel {
         g2.setColor(Color.BLACK);
         g2.drawString(String.format("%.2f m", model.getNivel()), numLevelBoxX + 15, numLevelBoxY + 20);
 
-        // Salida tubería
+        // Lineas de nivel - Principal
         g2.setColor(Color.DARK_GRAY);
         g2.fillRect(lineaNivelX, lineaNivelY, widthHorizontalLevelLine, 2);
         g2.fillRect(lineaNivelX + 50, lineaNivelY, 2, 282);
         g2.fillRect(lineaNivelX, lineaNivelY + 280, widthHorizontalLevelLine, 2);
 
+        // Lineas de nivel - Seguridad
+        g2.setColor(Color.DARK_GRAY);
+        g2.fillRect(lineaNivelX - 170, lineaNivelY, widthHorizontalLevelLine, 2);
+        g2.fillRect(lineaNivelX - 170, lineaNivelY, 2, 282);
+        g2.fillRect(lineaNivelX - 170, lineaNivelY + 280, widthHorizontalLevelLine, 2);
+
         // Variables Linea Salida LT LC
         int statusBoxY = tanqueY + 165;
         int statusBoxX = tanqueX + tanqueW + 100;
+
+        // Sistema de Seguridad
+
+        // LT BOX SECURITY
+        g2.setColor(new Color(135, 206, 250));
+        g2.fillOval(statusBoxX - 280, tanqueY + 140, 40, 40);
+        g2.setColor(Color.BLACK);
+        g2.drawString("LT", statusBoxX - 267, statusBoxY); // x2 + (-13)
+
+        // Sistema Tanque
 
         // LT BOX
         g2.setColor(new Color(135, 206, 250));
@@ -256,27 +311,82 @@ public class View extends JPanel {
         float[] dashPatternC = {6f, 6f};
         Stroke dashedStrokeC = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, dashPatternC, 0);
         g2.setStroke(dashedStrokeC);
-        g2.drawLine(statusBoxX - 270, 70, statusBoxX - 270, 110);
-        g2.drawLine(statusBoxX + 120, 70, statusBoxX + 120, 240);
-        g2.drawLine(statusBoxX - 270, statusBoxY - 200, statusBoxX + 124, statusBoxY - 200);
-        g2.setStroke(oldStrokeC);
+
+        // LINEAS HACIA SP Y VALVULA
+
+        // Lineas Valvula Principal
+
+        g2.drawLine(statusBoxX - 370, 28, statusBoxX - 370, 50);
+        g2.drawLine(statusBoxX + 120, 30, statusBoxX + 120, 240);
+        g2.drawLine(statusBoxX - 370, statusBoxY - 240, statusBoxX + 120, statusBoxY - 240);
+
+        // Lineas Valvula Seguridad
+
+        g2.setColor(Color.GRAY);
+        g2.drawLine(statusBoxX - 271, 14, statusBoxX - 271, 50); // Linea sobre valvula de seguridad
+        g2.drawLine(statusBoxX - 480, statusBoxY - 255, statusBoxX - 270, statusBoxY - 255); // Linea horizontal desde valvula de seguridad
+        g2.drawLine(statusBoxX - 480, 14, statusBoxX - 480, 170); // Linea vertical proveniente de Valvula
+        g2.drawLine(statusBoxX - 480, statusBoxY - 100, statusBoxX - 375, statusBoxY - 100); // Linea horizontal entre Logica y Valvula
+        g2.drawLine(statusBoxX - 375, 170, statusBoxX - 375, 235); // Linea vertical arriba de Logica
+
+        // LÍNEA CON FLECHA HACIA LA IZQUIERDA - DESDE SP HACIA LC
+
+        Stroke oldStrokeD = g2.getStroke();
+        g2.setStroke(dashed);
+        int x1 = statusBoxX - 320;
+        int x2 = statusBoxX - 282;
+        int y = numLevelDottedY;
+        g2.drawLine(x1, y, x2, y);
+        int arrowSizeSec = 10;
+        double angleSec = Math.atan2(0, x2 - x1);
+        int xArrowSec1 = (int) (x2 - arrowSizeSec * Math.cos(angleSec - Math.PI / 6));
+        int yArrowSec1 = (int) (y - arrowSizeSec * Math.sin(angleSec - Math.PI / 6));
+        int xArrowSec2 = (int) (x2 - arrowSizeSec * Math.cos(angleSec + Math.PI / 6));
+        int yArrowSec2 = (int) (y - arrowSizeSec * Math.sin(angleSec + Math.PI / 6));
+        Polygon arrowHeadSec = new Polygon();
+        arrowHeadSec.addPoint(x2, y);        // punta
+        arrowHeadSec.addPoint(xArrowSec1, yArrowSec1); // parte superior en ángulo
+        arrowHeadSec.addPoint(xArrowSec2, yArrowSec2); // parte inferior en ángulo
+        g2.fillPolygon(arrowHeadSec);
+
+        g2.setStroke(oldStrokeD);
+
+        // Imagen Casa
+
+        if (imagenCasa != null) {
+            g.drawImage(imagenCasa, 535, 450, 120, 85, this);  // x, y, width, height
+        }
     }
 
     // Metodos de Dibujo
-    private void dibujarValvula(Graphics2D g2, int centroX, int centroY, Color colorValvula) {
+    private void dibujarValvula(Graphics2D g2, int centroX, int centroY, Color colorValvula, boolean valvulaSeguridad) {
         g2.setColor(colorValvula);
+
+        // Triángulo izquierdo
         Polygon trianguloIzq = new Polygon();
         trianguloIzq.addPoint(centroX, centroY);
         trianguloIzq.addPoint(centroX - 20, centroY - 10);
         trianguloIzq.addPoint(centroX - 20, centroY + 10);
         g2.fill(trianguloIzq);
+
+        // Triángulo derecho
         Polygon trianguloDer = new Polygon();
         trianguloDer.addPoint(centroX, centroY);
         trianguloDer.addPoint(centroX + 20, centroY - 10);
         trianguloDer.addPoint(centroX + 20, centroY + 10);
         g2.fill(trianguloDer);
+
+        // Conector vertical
         g2.fillRect(centroX - 3, centroY - 15, 4, 15);
-        g2.fillArc(centroX - 11, centroY - 20, 20, 20, 0, 180);
+
+        // Parte superior: semicirculo o cuadrado
+        if (valvulaSeguridad) {
+            // Cuadrado
+            g2.fillRect(centroX - 11, centroY - 20, 20, 10);
+        } else {
+            // Semicírculo
+            g2.fillArc(centroX - 11, centroY - 20, 20, 20, 0, 180);
+        }
     }
 }
 
