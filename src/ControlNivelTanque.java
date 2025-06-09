@@ -15,7 +15,7 @@ public class ControlNivelTanque {
         }
 
         JFrame frame = new JFrame("ControlNivelTanque");
-        frame.setSize(1000, 700);
+        frame.setSize(1250, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
         frame.setLayout(new BorderLayout());
@@ -30,7 +30,7 @@ public class ControlNivelTanque {
 
         // Obtener el campo de texto setPoint de la vista
         JTextField campoSP = view.getSetPointField();
-        JLabel funcionConsumoLabel = new JLabel("Función de consumo: f(t) = 0.002 + 0.001 * sen(t)");
+        JLabel funcionConsumoLabel = new JLabel("Función de consumo: f(t) = 0.004 + 0.01 * sen(t)");
         funcionConsumoLabel.setBounds(10, 550, 300, 20); // Ejemplo de posición
 
         JButton iniciar = new JButton("►  Iniciar");
@@ -81,6 +81,7 @@ public class ControlNivelTanque {
 
         frame.add(panelInferior, BorderLayout.SOUTH);
         frame.add(view, BorderLayout.CENTER);
+        // frame.add(view.getGraphPanel(), BorderLayout.EAST); // Añadir la gráfica al lado derecho
 
         // Ajustar tamaño panelSuperior al 50% del ancho frame
         frame.addComponentListener(new java.awt.event.ComponentAdapter() {

@@ -9,6 +9,7 @@ public class View extends JPanel {
     private JButton botonModo;
     private Rectangle areaValvula;
     private Image imagenCasa;
+    private GraphPanel graphPanel;
 
     public View(Model model) {
         this.model = model;
@@ -51,6 +52,10 @@ public class View extends JPanel {
         }
 
         this.setLayout(null);
+
+        graphPanel = new GraphPanel();
+        graphPanel.setBounds(750, 10, 400, 225); // Posición y tamaño del panel
+        this.add(graphPanel);
     }
 
     public void updateBotonConsumoStyle(boolean activo) {
@@ -113,6 +118,10 @@ public class View extends JPanel {
 
     public void setBotonConsumoText(String text) {
         botonConsumo.setText(text);
+    }
+
+    public GraphPanel getGraphPanel() {
+        return graphPanel;
     }
 
     @Override

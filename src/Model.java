@@ -59,7 +59,8 @@ public class Model {
     }
 
     public double funcionConsumo(double tiempo) {
-        return 0.002 + 0.001 * Math.sin(tiempo);
+        double consumo = 0.004 + 0.01 * Math.sin(tiempo);
+        return consumo > 0 ? consumo : 0;
     }
 
     public boolean estaLleno() {

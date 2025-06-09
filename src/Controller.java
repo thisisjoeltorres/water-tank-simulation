@@ -19,10 +19,8 @@ public class Controller {
         // Initialize the timer
         timer = new Timer(150, e -> {
             this.model.actualizar();
-
-            // Validaciones de seguridad
             validarNiveles();
-
+            this.view.getGraphPanel().addNivel(this.model.getNivel()); // Actualizar gráfica
             this.view.repaint();
         });
 
