@@ -30,7 +30,7 @@ public class ControlNivelTanque {
 
         // Obtener el campo de texto setPoint de la vista
         JTextField campoSP = view.getSetPointField();
-        JLabel funcionConsumoLabel = new JLabel("Función de consumo: f(t) = 0.004 + 0.003 * sen(t)");
+        JLabel funcionConsumoLabel = new JLabel("Función de consumo: f(t) = 0.002 + 0.001 * sen(t)");
         funcionConsumoLabel.setBounds(10, 550, 300, 20); // Ejemplo de posición
 
         JButton iniciar = new JButton("►  Iniciar");

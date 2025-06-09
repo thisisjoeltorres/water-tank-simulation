@@ -102,14 +102,5 @@ public class Controller {
         view.repaint();
     }
 
-    public void abrirValvula() {
-        model.setValvulaAbierta(true);
-        model.setSimulando(true);
-        view.repaint();
-    }
-
-    public void startSimulation() {
-        timer.start();
-    }
 }
 

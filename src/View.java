@@ -122,7 +122,7 @@ public class View extends JPanel {
         // Draw the main rectangle part (straight pipe body)
         g2.fillRect(tuberiaEntradaX + 5, tuberiaEntradaY, 55, 10);
 
-// Draw the left rounded cap
+        // Draw the left rounded cap
         g2.fillArc(tuberiaEntradaX, tuberiaEntradaY, 10, 10, 90, 180);
         g2.setColor(model.isValvulaAbierta() ? new Color(135, 206, 250) : Color.GRAY);
         g2.fillRoundRect(tuberiaEntradaX + 80, tuberiaEntradaY, 60, 10, 0, 0);
