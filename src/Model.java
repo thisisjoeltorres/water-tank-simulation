@@ -3,16 +3,21 @@ public class Model {
     private double setPoint = 0.7;
     private boolean valvulaAbierta = false;
     private boolean valvulaSeguridadAbierta = true;
+    private int interaccionesDeSeguridad = 0;
     private boolean consumoActivo = false;
     private double tiempo = 0;
     private boolean simulando = true;
     private boolean modoAutomatico = true;
-    public static final double MAX_LEVEL = 0.95;
+    public static final double MAX_LEVEL = 1;
     public static final double MIN_LEVEL = 0.00;
 
     public double getNivel() {
         return nivel;
     }
+
+    public int getErrorSimulationCounter() { return interaccionesDeSeguridad; }
+
+    public void increaseErrorCounter() { interaccionesDeSeguridad++; }
 
     public double getSetPoint() {
         return setPoint;
@@ -64,7 +69,7 @@ public class Model {
     }
 
     public boolean estaLleno() {
-        return nivel >= MAX_LEVEL;
+        return nivel >= MAX_LEVEL - 0.05;
     }
 
     public boolean estaVacio() {
@@ -116,10 +121,12 @@ public class Model {
         // Sistema de Seguridad
 
         // Control automático de la válvula de seguridad
-        if (nivel >= MAX_LEVEL) {
-            valvulaSeguridadAbierta = false; // Se cierra para evitar rebose
-        } else if (nivel <= MAX_LEVEL - 0.05) {
-            valvulaSeguridadAbierta = true; // Se reabre cuando es seguro
+        if (nivel >= MAX_LEVEL - 0.05) {
+            if (interaccionesDeSeguridad < 4) {
+                valvulaSeguridadAbierta = false;
+            }
+        } else if (nivel <= MAX_LEVEL - 0.1) {
+            valvulaSeguridadAbierta = true;
         }
     }
 

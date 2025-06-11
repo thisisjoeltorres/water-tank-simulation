@@ -169,11 +169,16 @@ public class View extends JPanel {
         }
 
         // ----------- VALVULA DE SEGURIDAD ------------
-        if (model.isValvulaSeguridadAbierta()) {
+        if (model.getErrorSimulationCounter() > 3) {
+            dibujarValvula(g2, centroX + 100, centroY, Color.ORANGE, true);
+            g2.setColor(Color.BLACK);
+            g2.setFont(new Font("Arial", Font.PLAIN, 12));
+            g2.drawString("Error Critico", tuberiaEntradaX + 43, tuberiaEntradaY + 32);
+        } else if (model.isValvulaSeguridadAbierta()) {
             dibujarValvula(g2, centroX + 100, centroY, Color.GREEN, true);
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("Arial", Font.PLAIN, 12));
-            g2.drawString("Activada", tuberiaEntradaX + 45, tuberiaEntradaY + 32);
+            g2.drawString("Activada", tuberiaEntradaX + 38, tuberiaEntradaY + 32);
         } else {
             dibujarValvula(g2, centroX + 100, centroY, Color.RED, true);
             g2.setColor(Color.BLACK);

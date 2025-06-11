@@ -61,15 +61,15 @@ public class Controller {
     private void validarNiveles() {
         double nivel = model.getNivel();
 
-        if (model.estaLleno()) {
-            model.cerrarValvulaEntrada();
+        if (model.estaLleno() && model.getErrorSimulationCounter() < 4) {
+            model.cerrarValvulaSeguridad();
 
             if (alarmNotFired) {
                 alarmNotFired = false;
                 reproducirAlarma();
                 mostrarPopupAlarma("¡Tanque lleno!");
+                model.increaseErrorCounter();
             }
-
         } else {
             if (nivel < Model.MAX_LEVEL && nivel > Model.MIN_LEVEL && !alarmNotFired) {
                 alarmNotFired = true;
