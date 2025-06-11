@@ -38,11 +38,6 @@ public class View extends JPanel {
         applyButtonStyles(botonConsumo);
         applyButtonStyles(botonModo);
 
-        // Agregamos los botones a nuestra intefaz.
-
-        this.add(botonConsumo);
-        this.add(botonModo);
-
         // Imagen Casa
 
         try {

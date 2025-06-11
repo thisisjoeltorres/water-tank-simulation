@@ -51,6 +51,9 @@ public class ControlNivelTanque {
         panelSuperior.add(iniciar);
         panelSuperior.add(pausar);
         panelSuperior.add(reiniciar);
+        panelSuperior.add(view.getBotonModo());
+        panelSuperior.add(view.getBotonConsumo());
+
         panelInferior.add(funcionConsumoLabel);
 
         // Llamamos a la función que modifica el panel superior
